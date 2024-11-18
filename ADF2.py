@@ -144,48 +144,48 @@ if uploaded_file is not None:
                         with col3:
                             st.metric("Anomaly Percentage", f"{(anomaly_count/total_samples)*100:.2f}%")
                         
-                        # Visualizations
-                        st.write("### Feature Correlations and Anomalies")
+                        # # Visualizations
+                        # st.write("### Feature Correlations and Anomalies")
                         
-                        # Create correlation matrix visualization
-                        corr_matrix = processed_data[selected_features].corr()
-                        fig, ax = plt.subplots(figsize=(10, 8))
-                        sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0)
-                        plt.title('Feature Correlation Matrix')
-                        st.pyplot(fig)
+                        # # Create correlation matrix visualization
+                        # corr_matrix = processed_data[selected_features].corr()
+                        # fig, ax = plt.subplots(figsize=(10, 8))
+                        # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0)
+                        # plt.title('Feature Correlation Matrix')
+                        # st.pyplot(fig)
                         
-                        # Create scatter plots for pairs of features
-                        st.write("### Feature Pair Analysis")
-                        for i in range(0, len(selected_features), 2):
-                            if i + 1 < len(selected_features):
-                                x_feature = selected_features[i]
-                                y_feature = selected_features[i + 1]
+                        # # Create scatter plots for pairs of features
+                        # st.write("### Feature Pair Analysis")
+                        # for i in range(0, len(selected_features), 2):
+                        #     if i + 1 < len(selected_features):
+                        #         x_feature = selected_features[i]
+                        #         y_feature = selected_features[i + 1]
                                 
-                                fig, ax = plt.subplots(figsize=(10, 6))
-                                sns.scatterplot(
-                                    data=processed_data,
-                                    x=x_feature,
-                                    y=y_feature,
-                                    hue='anomaly',
-                                    palette={0: 'blue', 1: 'red'},
-                                    alpha=0.6
-                                )
-                                plt.title(f'Anomaly Detection: {x_feature} vs {y_feature}')
-                                plt.xlabel(x_feature)
-                                plt.ylabel(y_feature)
-                                st.pyplot(fig)
+                        #         fig, ax = plt.subplots(figsize=(10, 6))
+                        #         sns.scatterplot(
+                        #             data=processed_data,
+                        #             x=x_feature,
+                        #             y=y_feature,
+                        #             hue='anomaly',
+                        #             palette={0: 'blue', 1: 'red'},
+                        #             alpha=0.6
+                        #         )
+                        #         plt.title(f'Anomaly Detection: {x_feature} vs {y_feature}')
+                        #         plt.xlabel(x_feature)
+                        #         plt.ylabel(y_feature)
+                        #         st.pyplot(fig)
                         
-                        # Feature importance
-                        feature_importance = pd.DataFrame({
-                            'Feature': selected_features,
-                            'Importance': np.abs(np.mean(X_scaled, axis=0))
-                        }).sort_values('Importance', ascending=False)
+                        # # Feature importance
+                        # feature_importance = pd.DataFrame({
+                        #     'Feature': selected_features,
+                        #     'Importance': np.abs(np.mean(X_scaled, axis=0))
+                        # }).sort_values('Importance', ascending=False)
                         
-                        st.write("### Feature Importance")
-                        fig, ax = plt.subplots(figsize=(10, 4))
-                        sns.barplot(data=feature_importance, x='Importance', y='Feature')
-                        plt.title('Feature Importance in Anomaly Detection')
-                        st.pyplot(fig)
+                        # st.write("### Feature Importance")
+                        # fig, ax = plt.subplots(figsize=(10, 4))
+                        # sns.barplot(data=feature_importance, x='Importance', y='Feature')
+                        # plt.title('Feature Importance in Anomaly Detection')
+                        # st.pyplot(fig)
                         
                         # Download options
                         st.write("### Download Results")
@@ -209,6 +209,85 @@ if uploaded_file is not None:
                     except Exception as e:
                         st.error(f"An error occurred during analysis: {str(e)}")
                         st.error("Please check your data and selected features.")
+                        # Previous code remains the same until after the download button...
+
+# Add this code after the download button section:
+                        st.write("### Anomaly Visualization")
+                        
+                        # Perform PCA for visualization if we have more than 2 features
+                        if len(selected_features) > 2:
+                            from sklearn.decomposition import PCA
+                            pca = PCA(n_components=2)
+                            X_pca = pca.fit_transform(X_scaled)
+                            
+                            # Create a DataFrame for plotting
+                            plot_df = pd.DataFrame({
+                                'PC1': X_pca[:, 0],
+                                'PC2': X_pca[:, 1],
+                                'Anomaly': processed_data['anomaly'].map({0: 'Normal', 1: 'Anomaly'})
+                            })
+                            
+                            # Create the scatter plot
+                            fig, ax = plt.subplots(figsize=(12, 8))
+                            sns.scatterplot(
+                                data=plot_df,
+                                x='PC1',
+                                y='PC2',
+                                hue='Anomaly',
+                                palette={'Normal': 'blue', 'Anomaly': 'red'},
+                                alpha=0.6,
+                                s=100  # Point size
+                            )
+                            plt.title('Anomaly Detection Visualization (PCA)')
+                            plt.xlabel('First Principal Component')
+                            plt.ylabel('Second Principal Component')
+                            
+                            # Add a legend with custom labels
+                            plt.legend(title='Data Points', bbox_to_anchor=(1.05, 1), loc='upper left')
+                            
+                            # Adjust layout to prevent legend cutoff
+                            plt.tight_layout()
+                            st.pyplot(fig)
+                            
+                            # Add explanation of the visualization
+                            st.write("""
+                            #### Visualization Explanation:
+                            - **Blue points**: Normal data points
+                            - **Red points**: Detected anomalies
+                            - The plot uses PCA (Principal Component Analysis) to reduce the selected features to 2 dimensions
+                            - This allows us to visualize the separation between normal data and anomalies
+                            - Clustered points indicate similar patterns in the data
+                            - Isolated red points show clear anomalies that deviate from the normal patterns
+                            """)
+                            
+                            # Add PCA explained variance information
+                            explained_variance_ratio = pca.explained_variance_ratio_
+                            st.write(f"Explained variance ratio: {explained_variance_ratio[0]:.2%} (PC1), {explained_variance_ratio[1]:.2%} (PC2)")
+                            
+                        else:
+                            # If only 2 features are selected, plot them directly
+                            fig, ax = plt.subplots(figsize=(12, 8))
+                            sns.scatterplot(
+                                data=processed_data,
+                                x=selected_features[0],
+                                y=selected_features[1],
+                                hue=processed_data['anomaly'].map({0: 'Normal', 1: 'Anomaly'}),
+                                palette={'Normal': 'blue', 'Anomaly': 'red'},
+                                alpha=0.6,
+                                s=100  # Point size
+                            )
+                            plt.title('Anomaly Detection Visualization')
+                            plt.xlabel(selected_features[0])
+                            plt.ylabel(selected_features[1])
+                            
+                            # Add a legend with custom labels
+                            plt.legend(title='Data Points', bbox_to_anchor=(1.05, 1), loc='upper left')
+                            
+                            # Adjust layout to prevent legend cutoff
+                            plt.tight_layout()
+                            st.pyplot(fig)
+                        
+                        # Continue with the statistical summary section...
 
 else:
     st.info("Please upload a financial data file to begin analysis.")
