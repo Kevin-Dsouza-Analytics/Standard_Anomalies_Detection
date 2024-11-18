@@ -26,12 +26,12 @@ def identify_numeric_columns(data):
     numeric_columns = {}
     
     for column in data.columns:
-        # Convert column name to string and then check
-        col_name = str(column).lower()
+        # Convert column to string first
+        col_name = str(column)
         
         # Skip ID and date-like columns
         skip_keywords = {'id', 'number', 'num', 'date', 'time', 'timestamp'}
-        if any(keyword in col_name for keyword in skip_keywords):
+        if any(keyword in col_name.lower() for keyword in skip_keywords):
             continue
             
         # Check if column is numeric
@@ -144,48 +144,46 @@ if uploaded_file is not None:
                         with col3:
                             st.metric("Anomaly Percentage", f"{(anomaly_count/total_samples)*100:.2f}%")
                         
-                        # # Visualizations
-                        # st.write("### Feature Correlations and Anomalies")
+                        # Correlation Matrix
+                        st.write("### Feature Correlations and Anomalies")
+                        corr_matrix = processed_data[selected_features].corr()
+                        fig, ax = plt.subplots(figsize=(10, 8))
+                        sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0)
+                        plt.title('Feature Correlation Matrix')
+                        st.pyplot(fig)
                         
-                        # # Create correlation matrix visualization
-                        # corr_matrix = processed_data[selected_features].corr()
-                        # fig, ax = plt.subplots(figsize=(10, 8))
-                        # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0)
-                        # plt.title('Feature Correlation Matrix')
-                        # st.pyplot(fig)
-                        
-                        # # Create scatter plots for pairs of features
-                        # st.write("### Feature Pair Analysis")
-                        # for i in range(0, len(selected_features), 2):
-                        #     if i + 1 < len(selected_features):
-                        #         x_feature = selected_features[i]
-                        #         y_feature = selected_features[i + 1]
+                        # Feature Pair Analysis
+                        st.write("### Feature Pair Analysis")
+                        for i in range(0, len(selected_features), 2):
+                            if i + 1 < len(selected_features):
+                                x_feature = selected_features[i]
+                                y_feature = selected_features[i + 1]
                                 
-                        #         fig, ax = plt.subplots(figsize=(10, 6))
-                        #         sns.scatterplot(
-                        #             data=processed_data,
-                        #             x=x_feature,
-                        #             y=y_feature,
-                        #             hue='anomaly',
-                        #             palette={0: 'blue', 1: 'red'},
-                        #             alpha=0.6
-                        #         )
-                        #         plt.title(f'Anomaly Detection: {x_feature} vs {y_feature}')
-                        #         plt.xlabel(x_feature)
-                        #         plt.ylabel(y_feature)
-                        #         st.pyplot(fig)
+                                fig, ax = plt.subplots(figsize=(10, 6))
+                                sns.scatterplot(
+                                    data=processed_data,
+                                    x=x_feature,
+                                    y=y_feature,
+                                    hue='anomaly',
+                                    palette={0: 'blue', 1: 'red'},
+                                    alpha=0.6
+                                )
+                                plt.title(f'Anomaly Detection: {x_feature} vs {y_feature}')
+                                plt.xlabel(x_feature)
+                                plt.ylabel(y_feature)
+                                st.pyplot(fig)
                         
-                        # # Feature importance
-                        # feature_importance = pd.DataFrame({
-                        #     'Feature': selected_features,
-                        #     'Importance': np.abs(np.mean(X_scaled, axis=0))
-                        # }).sort_values('Importance', ascending=False)
+                        # Feature importance
+                        feature_importance = pd.DataFrame({
+                            'Feature': selected_features,
+                            'Importance': np.abs(np.mean(X_scaled, axis=0))
+                        }).sort_values('Importance', ascending=False)
                         
-                        # st.write("### Feature Importance")
-                        # fig, ax = plt.subplots(figsize=(10, 4))
-                        # sns.barplot(data=feature_importance, x='Importance', y='Feature')
-                        # plt.title('Feature Importance in Anomaly Detection')
-                        # st.pyplot(fig)
+                        st.write("### Feature Importance")
+                        fig, ax = plt.subplots(figsize=(10, 4))
+                        sns.barplot(data=feature_importance, x='Importance', y='Feature')
+                        plt.title('Feature Importance in Anomaly Detection')
+                        st.pyplot(fig)
                         
                         # Download options
                         st.write("### Download Results")
@@ -201,17 +199,7 @@ if uploaded_file is not None:
                             mime='text/csv'
                         )
                         
-                        # Statistical summary
-                        st.write("### Statistical Summary of Anomalies")
-                        st.write("Statistics for Detected Anomalies:")
-                        st.dataframe(anomalies[selected_features].describe())
-                        
-                    except Exception as e:
-                        st.error(f"An error occurred during analysis: {str(e)}")
-                        st.error("Please check your data and selected features.")
-                        # Previous code remains the same until after the download button...
-
-# Add this code after the download button section:
+                        # Visualization after download button
                         st.write("### Anomaly Visualization")
                         
                         # Perform PCA for visualization if we have more than 2 features
@@ -287,7 +275,14 @@ if uploaded_file is not None:
                             plt.tight_layout()
                             st.pyplot(fig)
                         
-                        # Continue with the statistical summary section...
+                        # Statistical summary
+                        st.write("### Statistical Summary of Anomalies")
+                        st.write("Statistics for Detected Anomalies:")
+                        st.dataframe(anomalies[selected_features].describe())
+                        
+                    except Exception as e:
+                        st.error(f"An error occurred during analysis: {str(e)}")
+                        st.error("Please check your data and selected features.")
 
 else:
     st.info("Please upload a financial data file to begin analysis.")
