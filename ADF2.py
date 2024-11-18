@@ -120,10 +120,10 @@ if uploaded_file is not None:
                         
                         # Run Isolation Forest
                         iso_forest = IsolationForest(
-                            n_estimators=150,
-                            contamination=0.05,
+                            n_estimators=100,
+                            contamination='auto',
                             max_samples='auto',
-                            bootstrap=True,
+                            bootstrap=False,
                             n_jobs=-1,
                             random_state=42
                         )
