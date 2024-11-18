@@ -144,46 +144,46 @@ if uploaded_file is not None:
                         with col3:
                             st.metric("Anomaly Percentage", f"{(anomaly_count/total_samples)*100:.2f}%")
                         
-                        # Correlation Matrix
-                        st.write("### Feature Correlations and Anomalies")
-                        corr_matrix = processed_data[selected_features].corr()
-                        fig, ax = plt.subplots(figsize=(10, 8))
-                        sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0)
-                        plt.title('Feature Correlation Matrix')
-                        st.pyplot(fig)
+                        # # Correlation Matrix
+                        # st.write("### Feature Correlations and Anomalies")
+                        # corr_matrix = processed_data[selected_features].corr()
+                        # fig, ax = plt.subplots(figsize=(10, 8))
+                        # sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0)
+                        # plt.title('Feature Correlation Matrix')
+                        # st.pyplot(fig)
                         
-                        # Feature Pair Analysis
-                        st.write("### Feature Pair Analysis")
-                        for i in range(0, len(selected_features), 2):
-                            if i + 1 < len(selected_features):
-                                x_feature = selected_features[i]
-                                y_feature = selected_features[i + 1]
+                        # # Feature Pair Analysis
+                        # st.write("### Feature Pair Analysis")
+                        # for i in range(0, len(selected_features), 2):
+                        #     if i + 1 < len(selected_features):
+                        #         x_feature = selected_features[i]
+                        #         y_feature = selected_features[i + 1]
                                 
-                                fig, ax = plt.subplots(figsize=(10, 6))
-                                sns.scatterplot(
-                                    data=processed_data,
-                                    x=x_feature,
-                                    y=y_feature,
-                                    hue='anomaly',
-                                    palette={0: 'blue', 1: 'red'},
-                                    alpha=0.6
-                                )
-                                plt.title(f'Anomaly Detection: {x_feature} vs {y_feature}')
-                                plt.xlabel(x_feature)
-                                plt.ylabel(y_feature)
-                                st.pyplot(fig)
+                        #         fig, ax = plt.subplots(figsize=(10, 6))
+                        #         sns.scatterplot(
+                        #             data=processed_data,
+                        #             x=x_feature,
+                        #             y=y_feature,
+                        #             hue='anomaly',
+                        #             palette={0: 'blue', 1: 'red'},
+                        #             alpha=0.6
+                        #         )
+                        #         plt.title(f'Anomaly Detection: {x_feature} vs {y_feature}')
+                        #         plt.xlabel(x_feature)
+                        #         plt.ylabel(y_feature)
+                        #         st.pyplot(fig)
                         
-                        # Feature importance
-                        feature_importance = pd.DataFrame({
-                            'Feature': selected_features,
-                            'Importance': np.abs(np.mean(X_scaled, axis=0))
-                        }).sort_values('Importance', ascending=False)
+                        # # Feature importance
+                        # feature_importance = pd.DataFrame({
+                        #     'Feature': selected_features,
+                        #     'Importance': np.abs(np.mean(X_scaled, axis=0))
+                        # }).sort_values('Importance', ascending=False)
                         
-                        st.write("### Feature Importance")
-                        fig, ax = plt.subplots(figsize=(10, 4))
-                        sns.barplot(data=feature_importance, x='Importance', y='Feature')
-                        plt.title('Feature Importance in Anomaly Detection')
-                        st.pyplot(fig)
+                        # st.write("### Feature Importance")
+                        # fig, ax = plt.subplots(figsize=(10, 4))
+                        # sns.barplot(data=feature_importance, x='Importance', y='Feature')
+                        # plt.title('Feature Importance in Anomaly Detection')
+                        # st.pyplot(fig)
                         
                         # Download options
                         st.write("### Download Results")
